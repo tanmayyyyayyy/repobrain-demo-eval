@@ -1,0 +1,34 @@
+# RepoBrain policy - lives in the repo, enforced on every PR.
+# NOTE: RepoBrain reads this file from the trusted BASE branch, so a PR cannot loosen its own rules.
+optimize: required          # complexity gate must pass (or be waived by a human with a reason)
+approval: human             # RepoBrain never merges or applies changes on its own
+ai_changes: log_all         # every AI-authored change is written to the audit log
+
+complexity_threshold: 10    # cyclomatic complexity, checked on functions the PR touched
+max_depth: 3                # nesting depth
+max_cognitive: 15           # cognitive complexity
+max_files_per_run: 15       # blast-radius limit for AI-authored change sets
+
+require_tests: true         # optimizer output is only applicable if the test suite passes
+# test_command: "python -m pytest -q -x"
+
+blocked:                    # AI-authored changes to these paths are BLOCKED (humans: warning)
+  - .github/workflows/
+  - secrets/
+  - credentials/
+  - .env
+  - .env.*
+  - "*.pem"
+  - id_rsa
+  - repobrain.yml
+blocked_for: ai             # ai | all
+review_required:            # changes here are flagged for explicit human review
+  - requirements.txt
+  - package.json
+  - pyproject.toml
+  - Dockerfile
+
+allow_llm: false            # true = optimizer may send over-threshold functions to an LLM API
+remove_unused_imports: true
+allow_comment_loss: false   # false = skip rewriting functions whose inline comments would be lost
+languages: [python]
